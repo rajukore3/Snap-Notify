@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pothole Detection</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        input[type="file"] {
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 200px;
+        }
+
+        button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        p {
+            margin-top: 20px;
+            color: #333;
+            font-weight: bold;
+        }
+        </style>
+        <button type="submit" onclick="getUserCoordinates()">get cordinates</button>
+        <script>
+            function getUserCoordinates() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(sendCoordinates);
+                } else {
+                    alert('Geolocation is not supported by this browser.');
+                }
+            }
+    
+            function sendCoordinates(position) {
+                const latitude = position.coords.latitude;
+                const longitude = position.coords.longitude;
+                fetch('/coordinates', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ latitude, longitude })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to send coordinates');
+                    }
+                    console.log('Coordinates sent successfully');
+                })
+                .catch(error => {
+                    console.error('Error sending coordinates:', error);
+                });
+            }
+        </script>
+</head>
+<body>
+    <!-- <script src="server.js"></script> -->
+    <h1>Pothole Detection</h1>
+    <form action="/upload" method="post" enctype="multipart/form-data">
+        <input type="file" name="image" accept="image/*" required>
+        <button type="submit">Upload and Predict</button>
+    </form>
+    {% if prediction %}
+        <p id="pred">Prediction: {{ prediction }}</p>
+    {% endif %}
+</body>
+</html>
